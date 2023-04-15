@@ -12,10 +12,8 @@ urlpatterns = [
     path('categories/<int:category_id>/posts/', posts_list_category),
     path('posts/<int:post_id>/comments/', CommentsListAPIView.as_view()),
     path('posts/<int:post_id>/comments/<int:pk>/', CommentDetailAPIView.as_view()),
-
-
-#     path('posts/<int:post_id>/comments/', CommentsListAPIView.as_view()),
-#     path('categories/<int:category_id>/posts/', posts_lists),
+    path('users/', UsersListAPIView.as_view()),
+    path('users/<int:pk>/', UserDetailAPIView.as_view()),
 
 ]
 

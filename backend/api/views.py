@@ -77,6 +77,7 @@ class CommentsListAPIView(APIView):
     def get_comments(self, post_id):
         try:
             comments = Comment.objects.filter(post=post_id)
+            return comments
         except Comment.DoesNotExist as err:
             return Response({'error': 'Object does not exists'})
 
@@ -98,6 +99,7 @@ class CommentDetailAPIView(APIView):
     def get_comment(self, pk):
         try:
             comment = Comment.objects.get(id=pk)
+            return comment
         except Comment.DoesNotExist as err:
             return Response({'error': 'Object does not exists'})
 
@@ -118,3 +120,24 @@ class CommentDetailAPIView(APIView):
         comment = self.get_comment(pk)
         comment.delete()
         return Response({'message': 'delete comment ' + str(comment)})
+
+
+
+class UsersListAPIView(APIView):
+    def get(self,request):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data, status=200)
+
+
+class UserDetailAPIView(APIView):
+    def get_user(self, pk):
+        try:
+            user = User.objects.get(id=pk)
+            return user
+        except User.DoesNotExist as err:
+            return Response({'error': 'Object does not exists'})
+    def get(self, request, pk=None):
+        user = self.get_user(pk)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=200)
