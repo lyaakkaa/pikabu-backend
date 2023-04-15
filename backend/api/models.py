@@ -51,6 +51,8 @@ class Comment(models.Model):
         verbose_name = 'Comment'
         verbose_name_plural = 'Comments'
 
+    def __str__(self) -> str:
+            return f'{self.author}`s comment'
 
 
 

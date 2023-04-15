@@ -26,8 +26,8 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True)
-    comments = CommentSerializer(many=True, read_only=True)
+#     author = UserSerializer(read_only=True)
+#     comments = CommentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Post
@@ -36,6 +36,7 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(max_length=100)
 
     def create(self, validated_data):
