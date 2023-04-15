@@ -3,6 +3,7 @@ from .serializers import *
 from rest_framework.decorators import api_view, permission_classes
 from django.http.response import JsonResponse
 from rest_framework.response import Response
+from rest_framework.permissions import *
 from rest_framework.views import APIView
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -92,7 +93,7 @@ class CommentsListAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
-
+    permission_classes = [IsAuthenticated]
 
 
 class CommentDetailAPIView(APIView):
