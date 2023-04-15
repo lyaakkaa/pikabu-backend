@@ -13,7 +13,7 @@ def index(request):
     return HttpResponse('check')
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def posts_list(request):
     posts = Post.objects.all()
     serializers = PostSerializer(posts, many=True)
