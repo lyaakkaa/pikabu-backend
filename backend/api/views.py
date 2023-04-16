@@ -93,7 +93,7 @@ class CommentsListAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
-    permission_classes = [IsAuthenticated]
+#     permission_classes = [IsAuthenticated]
 
 
 class CommentDetailAPIView(APIView):
