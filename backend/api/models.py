@@ -29,7 +29,7 @@ class Post(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     body = models.TextField(default='')
     post_likes = models.IntegerField(default=0)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='posts')
 
     class Meta:
         verbose_name = 'Post'
@@ -40,7 +40,7 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()
     created_date = models.DateTimeField(auto_now_add=True)
     comment_likes = models.IntegerField(default=0)
@@ -52,7 +52,7 @@ class Comment(models.Model):
         verbose_name_plural = 'Comments'
 
     def __str__(self) -> str:
-            return f'{self.author}`s comment'
+        return f'{self.author}`s comment for {self.post}'
 
 
 
