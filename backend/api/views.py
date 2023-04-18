@@ -15,6 +15,7 @@ def index(request):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def posts_list(request):
     if request.method == 'GET':
         posts = Post.objects.all()
@@ -29,6 +30,7 @@ def posts_list(request):
 
 
 @api_view(['GET', 'DELETE', 'PUT'])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def post_detail(request, post_id):
     try:
         post = Post.objects.get(id=post_id)
@@ -75,6 +77,7 @@ def posts_list_category(request, category_id):
 
 
 class CommentsListAPIView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
     def get_comments(self, post_id):
         try:
             comments = Comment.objects.filter(post=post_id)
@@ -93,7 +96,7 @@ class CommentsListAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
-#     permission_classes = [IsAuthenticated]
+
 
 
 class CommentDetailAPIView(APIView):
