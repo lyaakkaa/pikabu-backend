@@ -22,5 +22,6 @@ urlpatterns = [
     path('users/', UsersListAPIView.as_view()),
     path('users/<int:pk>/', UserDetailAPIView.as_view()),
     path('login/', obtain_jwt_token),
+    path('register/', RegistrationAPIView.as_view()),  # post (token)
 ]
 

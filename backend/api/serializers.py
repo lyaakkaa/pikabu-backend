@@ -5,15 +5,17 @@ from .models import *
 
 class UserSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
-    name = serializers.CharField(max_length=255, required=True)
-    email = serializers.EmailField(required=True)
+    username = serializers.CharField()
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
 
     def create(self, validated_data):
         return User.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
-        instance.name = validated_data.get('name', instance.name)
+        instance.username = validated_data.get('username', instance.username)
         instance.email = validated_data.get('email', instance.email)
+        instance.password = validated_data('password', instance.password)
         instance.save()
         return instance
 

@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -12,16 +13,6 @@ class Category(models.Model):
     def __str__(self) -> str:
         return self.name
 
-class User(models.Model):
-    name = models.CharField(max_length=255)
-    email = models.EmailField()
-
-    class Meta:
-        verbose_name = 'User'
-        verbose_name_plural = 'Users'
-
-    def __str__(self) -> str:
-        return self.name
 
 class Post(models.Model):
     title = models.CharField(max_length=255)
