@@ -22,7 +22,7 @@ class Category(models.Model):
 
 class Post(models.Model):
     title = models.CharField(max_length=255)
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
+    author = models.ForeignKey(PeekabooUser, on_delete=models.CASCADE, related_name='posts')
     created_date = models.DateTimeField(auto_now_add=True)
     body = models.TextField(default='')
     post_likes = models.IntegerField(default=0)

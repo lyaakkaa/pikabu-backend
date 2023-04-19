@@ -7,12 +7,12 @@ from rest_framework.permissions import *
 from rest_framework.views import APIView
 from django.http import HttpResponse
 from django.shortcuts import render
-from rest_framework_jwt.serializers import JSONWebTokenSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_jwt.utils import jwt_encode_handler, jwt_decode_handler
 from django.contrib.auth import authenticate
 from .models import PeekabooUser
 from .serializers import PeekabooUserSerializer
 from datetime import datetime, timedelta
+
 
 # Create your views here.
 
@@ -36,8 +36,13 @@ def posts_list(request):
 
 
 @api_view(['GET', 'DELETE', 'PUT'])
-@permission_classes([IsAuthenticatedOrReadOnly])
 def post_detail(request, post_id):
+    auth_header = request.META.get('HTTP_AUTHORIZATION')
+    token = auth_header.split()[-1]
+    decoded = jwt_decode_handler(token)
+    exp_time = decoded['exp_time']
+    if int(datetime.now().timestamp()) >= exp_time:
+        return Response({'message': 'unauthorized'}, status=401)
     try:
         post = Post.objects.get(id=post_id)
     except Post.DoesNotExist as err:
@@ -48,7 +53,7 @@ def post_detail(request, post_id):
         return Response(serializer.data, status=200)
     if request.method == 'DELETE':
         post.delete()
-        return Response({'message': 'delete post ' + str(post)})
+        return Response({'message': 'delete post ' + str(post.pk)})
 
     if request.method == 'PUT':
         serializer = PostSerializer(data=request.data, instance=post)
@@ -70,6 +75,7 @@ def categories_list(request):
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 
+
 @api_view(['GET'])
 def posts_list_category(request, category_id):
     try:
@@ -82,6 +88,7 @@ def posts_list_category(request, category_id):
 
 class CommentsListAPIView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get_comments(self, post_id):
         try:
             comments = Comment.objects.filter(post=post_id)
@@ -100,7 +107,6 @@ class CommentsListAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
-
 
 
 class CommentDetailAPIView(APIView):
@@ -130,7 +136,6 @@ class CommentDetailAPIView(APIView):
         return Response({'message': 'delete comment ' + str(comment)})
 
 
-
 class SignInView(APIView):
     def post(self, request):
         usr = request.data.get('username')
@@ -140,24 +145,24 @@ class SignInView(APIView):
         if not user:
             return Response({'error': 'Invalid credentials'})
 
-        refresh = RefreshToken()
-        access = refresh
+        token = jwt_encode_handler(
+            {'user_id': user.pk, 'exp_time': int((datetime.now() + timedelta(days=1)).timestamp())})
 
         return Response({
-            'access': str(refresh.access_token),
-            'refresh': str(refresh)
+            'token': str(token)
         })
+
 
 class SignUpView(APIView):
     def post(self, request):
         serializer = PeekabooUserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            refresh = RefreshToken.for_user(user)
+            token = jwt_encode_handler(
+                {'user_id': user.pk, 'exp_time': int((datetime.now() + timedelta(days=1)).timestamp())})
 
             return Response({
-                'access': str(refresh.access_token.set_exp),
-                'refresh': str(refresh)
+                'token': str(token)
             })
 
         return Response(serializer.errors, status=400)
