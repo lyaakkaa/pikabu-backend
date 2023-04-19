@@ -8,6 +8,11 @@ from rest_framework.views import APIView
 from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework_jwt.serializers import JSONWebTokenSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+from .models import PeekabooUser
+from .serializers import PeekabooUserSerializer
+from datetime import datetime, timedelta
 
 # Create your views here.
 
@@ -75,8 +80,6 @@ def posts_list_category(request, category_id):
     return Response(serializer.data, status=200)
 
 
-
-
 class CommentsListAPIView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     def get_comments(self, post_id):
@@ -128,37 +131,33 @@ class CommentDetailAPIView(APIView):
 
 
 
-class UsersListAPIView(APIView):
-    def get(self,request):
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data, status=200)
-
-
-class UserDetailAPIView(APIView):
-    def get_user(self, pk):
-        try:
-            user = User.objects.get(id=pk)
-            return user
-        except User.DoesNotExist as err:
-            return Response({'error': 'Object does not exists'})
-    def get(self, request, pk=None):
-        user = self.get_user(pk)
-        serializer = UserSerializer(user)
-        return Response(serializer.data, status=200)
-
-
-
-class RegistrationAPIView(APIView):
+class SignInView(APIView):
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                serializer.save()
-            except Exception as e:
-                return Response({'detail': str(e)}, status=400)
+        usr = request.data.get('username')
+        psd = request.data.get('password')
 
-            token_serializer = JSONWebTokenSerializer(data=serializer.data)
-            token = token_serializer.validate(request.data).get('token')
-            return Response({'token': token})
+        user = PeekabooUser.objects.filter(username=usr, password=psd).first()
+        if not user:
+            return Response({'error': 'Invalid credentials'})
+
+        refresh = RefreshToken()
+        access = refresh
+
+        return Response({
+            'access': str(refresh.access_token),
+            'refresh': str(refresh)
+        })
+
+class SignUpView(APIView):
+    def post(self, request):
+        serializer = PeekabooUserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            refresh = RefreshToken.for_user(user)
+
+            return Response({
+                'access': str(refresh.access_token.set_exp),
+                'refresh': str(refresh)
+            })
+
         return Response(serializer.errors, status=400)

@@ -3,6 +3,12 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
+class PeekabooUser(models.Model):
+    username = models.CharField(max_length=50)
+    password = models.CharField(max_length=50)
+    total_rating = models.IntegerField(default=0)
+    role = models.CharField(max_length=50, default='user')
+
 class Category(models.Model):
     name = models.CharField(max_length=100, db_index=True)
 
@@ -44,8 +50,5 @@ class Comment(models.Model):
 
     def __str__(self) -> str:
         return f'{self.author}`s comment for {self.post}'
-
-
-
 
 
