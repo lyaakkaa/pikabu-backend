@@ -28,7 +28,6 @@ def posts_list(request):
     elif request.method == 'POST':
         if is_token_exp(request):
             return Response({'message': 'unauthorized'}, status=401)
-        print('here')
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
