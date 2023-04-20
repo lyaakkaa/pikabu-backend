@@ -83,8 +83,6 @@ def posts_list_category(request, category_id):
 
 
 class CommentsListAPIView(APIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
     def get_comments(self, post_id):
         try:
             comments = Comment.objects.filter(post=post_id)
@@ -98,6 +96,8 @@ class CommentsListAPIView(APIView):
         return Response(serializer.data, status=200)
 
     def post(self, request, post_id):
+        if is_token_exp(request):
+            return Response({'message': 'unauthorized'}, status=401)
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
