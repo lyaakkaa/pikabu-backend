@@ -19,15 +19,16 @@ from datetime import datetime, timedelta
 def index(request):
     return HttpResponse('check')
 
-
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticatedOrReadOnly])
 def posts_list(request):
     if request.method == 'GET':
         posts = Post.objects.all()
         serializers = PostSerializer(posts, many=True)
         return Response(serializers.data, status=200)
     elif request.method == 'POST':
+        if is_token_exp(request):
+            return Response({'message': 'unauthorized'}, status=401)
+        print('here')
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -37,12 +38,8 @@ def posts_list(request):
 
 @api_view(['GET', 'DELETE', 'PUT'])
 def post_detail(request, post_id):
-    auth_header = request.META.get('HTTP_AUTHORIZATION')
-    token = auth_header.split()[-1]
-    decoded = jwt_decode_handler(token)
-    exp_time = decoded['exp_time']
-    if int(datetime.now().timestamp()) >= exp_time:
-        return Response({'message': 'unauthorized'}, status=401)
+    if is_token_exp(request):
+        return Response({'message': 'unauthorized'}, status=401) 
     try:
         post = Post.objects.get(id=post_id)
     except Post.DoesNotExist as err:
@@ -149,7 +146,8 @@ class SignInView(APIView):
             {'user_id': user.pk, 'exp_time': int((datetime.now() + timedelta(days=1)).timestamp())})
 
         return Response({
-            'token': str(token)
+            'token': str(token),
+            'id': user.id,
         })
 
 
@@ -162,7 +160,18 @@ class SignUpView(APIView):
                 {'user_id': user.pk, 'exp_time': int((datetime.now() + timedelta(days=1)).timestamp())})
 
             return Response({
-                'token': str(token)
+                'token': str(token),
+                'id': user.id,
             })
 
         return Response(serializer.errors, status=400)
+
+
+def is_token_exp(request):
+    auth_header = request.META.get('HTTP_AUTHORIZATION')
+    token = auth_header.split()[-1]
+    decoded = jwt_decode_handler(token)
+    exp_time = decoded['exp_time']
+    if int(datetime.now().timestamp()) >= exp_time:
+        return True
+    return False
