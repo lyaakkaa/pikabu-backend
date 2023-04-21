@@ -9,6 +9,9 @@ class PeekabooUser(models.Model):
     total_rating = models.IntegerField(default=0)
     role = models.CharField(max_length=50, default='user')
 
+    def __str__(self) -> str:
+            return self.username
+
 class Category(models.Model):
     name = models.CharField(max_length=100, db_index=True)
 

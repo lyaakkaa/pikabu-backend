@@ -8,6 +8,8 @@ urlpatterns = [
     path('categories/<int:category_id>/posts/', posts_list_category),
     path('posts/<int:post_id>/comments/', CommentsListAPIView.as_view()),
     path('posts/<int:post_id>/comments/<int:pk>/', CommentDetailAPIView.as_view()),
+    path('users/', users_list),
+    path('users/<int:user_id>', user_detail),
     path('signin', SignInView.as_view()),
     path('signup', SignUpView.as_view()),
 ]

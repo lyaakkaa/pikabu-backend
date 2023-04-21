@@ -174,3 +174,24 @@ def is_token_exp(request):
     if int(datetime.now().timestamp()) >= exp_time:
         return True
     return False
+
+
+
+@api_view(['GET'])
+def users_list(request):
+    if request.method == 'GET':
+        users = PeekabooUser.objects.all()
+        serializers = PeekabooUserSerializer(users, many=True)
+        return Response(serializers.data, status=200)
+
+
+@api_view(['GET'])
+def user_detail(request, user_id):
+    try:
+        user = PeekabooUser.objects.get(id=user_id)
+    except PeekabooUser.DoesNotExist as err:
+        return JsonResponse({'message': str(err)}, status=400)
+
+    if request.method == 'GET':
+        serializer = PeekabooUserSerializer(user)
+        return Response(serializer.data, status=200)
