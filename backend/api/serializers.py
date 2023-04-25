@@ -8,7 +8,7 @@ class PeekabooUserSerializer(serializers.ModelSerializer):
         model = PeekabooUser
         fields = ('id', 'username', 'total_rating', 'role', 'password')
 
-class CommentSerializer(serializers.ModelSerializer):   
+class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'

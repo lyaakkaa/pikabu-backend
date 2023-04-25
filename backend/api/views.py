@@ -168,11 +168,12 @@ class SignUpView(APIView):
 
 def is_token_exp(request):
     auth_header = request.META.get('HTTP_AUTHORIZATION')
-    token = auth_header.split()[-1]
-    decoded = jwt_decode_handler(token)
-    exp_time = decoded['exp_time']
-    if int(datetime.now().timestamp()) >= exp_time:
-        return True
+    if(auth_header != None):
+        token = auth_header.split()[-1]
+        decoded = jwt_decode_handler(token)
+        exp_time = decoded['exp_time']
+        if int(datetime.now().timestamp()) >= exp_time:
+            return True
     return False
 
 
