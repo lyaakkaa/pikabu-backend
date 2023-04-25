@@ -186,7 +186,7 @@ def users_list(request):
         return Response(serializers.data, status=200)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'PUT'])
 def user_detail(request, user_id):
     try:
         user = PeekabooUser.objects.get(id=user_id)
@@ -196,3 +196,10 @@ def user_detail(request, user_id):
     if request.method == 'GET':
         serializer = PeekabooUserSerializer(user)
         return Response(serializer.data, status=200)
+
+    if request.method == 'PUT':
+        serializer = PeekabooUserSerializer(instance=user, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=200)
+
