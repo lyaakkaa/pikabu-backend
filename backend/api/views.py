@@ -147,6 +147,7 @@ class SignInView(APIView):
         return Response({
             'token': str(token),
             'id': user.id,
+            'role': user.role
         })
 
 
@@ -166,6 +167,7 @@ class SignUpView(APIView):
             return Response({
                 'token': str(token),
                 'id': user.id,
+                'role': user.role
             })
 
         print(serializer.errors)
