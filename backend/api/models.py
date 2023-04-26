@@ -36,7 +36,7 @@ class Post(models.Model):
         verbose_name_plural = 'Posts'
 
     def __str__(self) -> str:
-        return self.title
+        return self.title   
 
 
 class Comment(models.Model):

@@ -150,7 +150,6 @@ class SignInView(APIView):
         })
 
 
-
 class SignUpView(APIView):
     def post(self, request):
         serializer = PeekabooUserSerializer(data=request.data)
