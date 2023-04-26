@@ -22,7 +22,8 @@ def index(request):
 @api_view(['GET', 'POST'])
 def posts_list(request):
     if request.method == 'GET':
-        posts = Post.objects.all()
+        category = request.query_params.get('category')
+        posts = Post.objects.filter(category__name=category)
         serializers = PostSerializer(posts, many=True)
         return Response(serializers.data, status=200)
     elif request.method == 'POST':
