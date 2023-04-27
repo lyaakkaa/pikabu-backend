@@ -256,3 +256,17 @@ def user_detail(request, user_id):
         serializer.save()
         return Response(serializer.data, status=200)
 
+@api_view(['GET'])
+def user_posts(request, user_id):
+    try:
+        user = PeekabooUser.objects.get(id=user_id)
+        posts = Post.objects.filter(author=user)
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data, status=200)
+    except PeekabooUser.DoesNotExist:
+        return Response({'error': 'User not found.'}, status=404)
+
+
+
+
+
