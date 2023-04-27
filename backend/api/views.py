@@ -138,8 +138,8 @@ class SignInView(APIView):
         usr = request.data.get('username')
         psd = request.data.get('password')
 
-        user = PeekabooUser.objects.filter(username=usr).first()
-        if not user or not check_password(psd, user.password):
+        user = PeekabooUser.objects.filter(username=usr, password=psd).first()
+        if not user:
             return Response({'error': 'Invalid credentials'})
 
         token = jwt_encode_handler(
@@ -156,12 +156,7 @@ class SignUpView(APIView):
     def post(self, request):
         serializer = PeekabooUserSerializer(data=request.data)
         if serializer.is_valid():
-            existing_user = PeekabooUser.objects.filter(username=request.data['username']).exists()
-            if existing_user:
-                return Response({'error': 'Username already taken. Please choose a different username.'}, status=400)
-
-            password = make_password(request.data['password']) # hash the password
-            user = serializer.save(password=password)
+            user = serializer.save()
             token = jwt_encode_handler(
                 {'user_id': user.pk, 'exp_time': int((datetime.now() + timedelta(days=1)).timestamp())})
 
@@ -171,8 +166,49 @@ class SignUpView(APIView):
                 'role': user.role
             })
 
-        print(serializer.errors)
         return Response(serializer.errors, status=400)
+
+
+# class SignInView(APIView):
+#     def post(self, request):
+#         usr = request.data.get('username')
+#         psd = request.data.get('password')
+#
+#         user = PeekabooUser.objects.filter(username=usr).first()
+#         if not user or not check_password(psd, user.password):
+#             return Response({'error': 'Invalid credentials'})
+#
+#         token = jwt_encode_handler(
+#             {'user_id': user.pk, 'exp_time': int((datetime.now() + timedelta(days=1)).timestamp())})
+#
+#         return Response({
+#             'token': str(token),
+#             'id': user.id,
+#             'role': user.role
+#         })
+#
+#
+# class SignUpView(APIView):
+#     def post(self, request):
+#         serializer = PeekabooUserSerializer(data=request.data)
+#         if serializer.is_valid():
+#             existing_user = PeekabooUser.objects.filter(username=request.data['username']).exists()
+#             if existing_user:
+#                 return Response({'error': 'Username already taken. Please choose a different username.'}, status=400)
+#
+#             password = make_password(request.data['password']) # hash the password
+#             user = serializer.save(password=password)
+#             token = jwt_encode_handler(
+#                 {'user_id': user.pk, 'exp_time': int((datetime.now() + timedelta(days=1)).timestamp())})
+#
+#             return Response({
+#                 'token': str(token),
+#                 'id': user.id,
+#                 'role': user.role
+#             })
+#
+#         print(serializer.errors)
+#         return Response(serializer.errors, status=400)
 
 
 
@@ -188,12 +224,19 @@ def is_token_exp(request):
 
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def users_list(request):
     if request.method == 'GET':
         users = PeekabooUser.objects.all()
         serializers = PeekabooUserSerializer(users, many=True)
         return Response(serializers.data, status=200)
+    elif request.method == 'POST':
+            serializer = PeekabooUserSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=201)
+            return Response(serializer.errors, status=400)
+
 
 
 @api_view(['GET', 'PUT'])
