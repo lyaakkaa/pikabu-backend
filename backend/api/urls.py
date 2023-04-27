@@ -13,4 +13,5 @@ urlpatterns = [
     path('users/<int:user_id>', user_detail),
     path('signin', SignInView.as_view()),
     path('signup', SignUpView.as_view()),
+    path('likes', LikeView.as_view()),
 ]

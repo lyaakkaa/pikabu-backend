@@ -6,7 +6,7 @@ from .models import *
 class PeekabooUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeekabooUser
-        fields = ('id', 'username', 'total_rating', 'role', 'password')
+        fields = ['id', 'username', 'total_rating', 'role', 'password']
 
 class CommentSerializer(serializers.ModelSerializer):
     author_username = serializers.ReadOnlyField(source='author.username')
@@ -14,12 +14,21 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = '__all__'
 
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = '__all__'
+
 class PostSerializer(serializers.ModelSerializer):
     author_username = serializers.ReadOnlyField(source='author.username')
+    like_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ['id', 'title', 'author', 'author_username', 'created_date', 'body', 'post_likes', 'category']
+        fields = ['id', 'title', 'author', 'author_username', 'created_date', 'body', 'category', 'like_count']
+
+    def get_like_count(self, obj):
+        return Like.objects.filter(post_id=obj.id, liked=True).count() - Like.objects.filter(post_id=obj.id, liked=False).count()
 
 class CategorySerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)

@@ -23,12 +23,12 @@ class Category(models.Model):
         return self.name
 
 
+
 class Post(models.Model):
     title = models.CharField(max_length=255)
     author = models.ForeignKey(PeekabooUser, on_delete=models.CASCADE, related_name='posts')
     created_date = models.DateTimeField(auto_now_add=True)
     body = models.TextField(default='')
-    post_likes = models.IntegerField(default=0)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='posts')
 
     class Meta:
@@ -37,6 +37,16 @@ class Post(models.Model):
 
     def __str__(self) -> str:
         return self.title   
+    
+
+class Like(models.Model):
+    user = models.ForeignKey(PeekabooUser, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    liked = models.BooleanField(default=True)   
+    created_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'post']
 
 
 class Comment(models.Model):

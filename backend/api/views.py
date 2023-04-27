@@ -140,6 +140,30 @@ class CommentDetailAPIView(APIView):
         return Response({'message': 'delete comment ' + str(comment)})
 
 
+class LikeView(APIView):
+    def post(self, request):
+        post_id = request.data.get('post')
+        user_id = request.data.get('user')
+        likes = Like.objects.filter(user_id=user_id, post_id=post_id)
+        if likes.count() > 0:
+            like = likes.first()
+            like.liked = request.data.get('liked')
+            like.save()
+            return Response({}, status=200)
+
+        serializer = LikeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+    
+    def delete(self, request):
+        post_id = request.data.get('post')
+        user_id = request.data.get('user')
+        like = Like.objects.filter(user_id=user_id, post_id=post_id)
+        like.delete()
+        return Response({'message': 'deleted like'})
+
 class SignInView(APIView):
     def post(self, request):
         usr = request.data.get('username')
