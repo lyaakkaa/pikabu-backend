@@ -56,8 +56,9 @@ def post_detail(request, post_id):
         serializer = PostSerializer(post)
         return Response(serializer.data, status=200)
     if request.method == 'DELETE':
+        post_id = post.pk
         post.delete()
-        return Response({'message': 'delete post ' + str(post.pk)})
+        return Response({'message': 'delete post ' + str(post_id)})
 
     if request.method == 'PUT':
         serializer = PostSerializer(data=request.data, instance=post)
@@ -246,9 +247,10 @@ def user_detail(request, user_id):
         return Response(serializer.data, status=200)
 
     if request.method == 'PUT':
+        password = make_password(request.data['password'])
         serializer = PeekabooUserSerializer(instance=user, data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(password=password)
         return Response(serializer.data, status=200)
 
 @api_view(['GET'])
