@@ -23,7 +23,7 @@ def index(request):
 def posts_list(request):
     if request.method == 'GET':
         category = request.query_params.get('category')
-        posts = Post.objects.filter(category__name=category)
+        posts = Post.objects.filter(category__name=category.capitalize())
         if category == 'personal':
             auth_header = request.META.get('HTTP_AUTHORIZATION')
             if auth_header != None:    
